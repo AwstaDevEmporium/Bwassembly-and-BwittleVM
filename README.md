@@ -15,7 +15,7 @@ Variables in AyeScript are scope-less as of now. Later it is wanted for there to
 
 ``C=`` - Sets Target Register to C
 
-``D=`` - Sets Target Register to C
+``D=`` - Sets Target Register to D
 
 ## Special Operation Shortcuts
 Commas do not designate a string, rather, they only assign the string to the active register. All variables are stored as strings in the AyeVM, however there are methods to intentionally compress further. For instance you may use:
