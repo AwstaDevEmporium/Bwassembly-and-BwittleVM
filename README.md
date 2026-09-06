@@ -2,7 +2,14 @@
 Bwassembly is an interesting bitcode (yes, not bytecode) compiled-interpreted language designed as the first language for the BwittleVM, made for fun. It is not too akin to any specific language. This will be general overview on syntax, and features. There will also be documentation on what it compiles down to, being Bwittle Bwinary or just Bwinary, seen as ```.bwvm``` (BWittle Virtual Machine) files. Why is it called Bwittle? Because it is 'Little Bits', it has very small compiled output and the BWVM is only about 1 megabyte, and it has plenty room for more features via the application of DLLs. Note Bwassembly functions and variables are compiled down to integers.
 
 ## Compilation
-Bwassembly is compiled using an order-of-operations line parser. The leftmost parentheses are executed first for every statement, including inside parenthetical statements. Bwassembly compiles to many ```.bwvm``` files corresponding to every function. These are lazily loaded and cached by the BwittleVM.
+Bwassembly is compiled using an order-of-operations line parser. The leftmost parentheses are executed first for every statement, including inside parenthetical statements. Bwassembly compiles to many ```.bwvm``` files corresponding to every function. These are lazily loaded and cached by the BwittleVM. To further optimize the compiled output, a 3-byte config is in the project's bin directory. This contains instructions for the VM to interpret your code. Without it, your code is uninterpretable. The format of this is as such:
+```
+First 4 bits represent - VariableID bit width
+Next 4 bits represent - StringByteLengthID bit width
+Next 7 bits represent - Integer bit width
+Next 4 bits represent - FixedDeciPos bit width
+Next 5 bits represent - FunctionID bit width
+```
 
 ## Registers/ Vars
 Variables in Bwassembly are scope-less. Registers are temporary and are often replaced in the attempt to give a function input, as built in functions even take in registers. To assign the active register you use:
@@ -111,3 +118,16 @@ VarRemove - DestroyVar [varname]
 			UnloadFunc [functionname]
 ExternalLibrary - tbd
 ```
+
+# Examples:
+
+```
+Function Program
+	PrintLine (0=)(#"-10")
+	While-Not RegA (0=)(True)
+	
+	EndWhile
+EndFunction
+```
+
+Compiles to: ```000110001011100000000000010100001000001100100001011000001001111``` w/ 3BConfig of ```011111110001111011100111```
