@@ -1,4 +1,4 @@
-# AyeScript
+# Bwassembly
 AyeScript is an interesting bitcode (yes, not bytecode) compiled-interpreted language designed as the first language for the AyeVM, made for fun. It is not too akin to any specific language. This will be general overview on syntax.
 
 ## Compilation
