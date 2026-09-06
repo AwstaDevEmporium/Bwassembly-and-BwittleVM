@@ -1,5 +1,5 @@
 # Bwassembly
-AyeScript is an interesting bitcode (yes, not bytecode) compiled-interpreted language designed as the first language for the BwittleVM, made for fun. It is not too akin to any specific language. This will be general overview on syntax, and features. There will also be documentation on what it compiles down to, being Bwittle Bwinary or just Bwinary, seen as ```.bwvm``` (BWittle Virtual Machine) files. Why is it called Bwittle? Because it is 'Little Bits', it has very small compiled output and the BWVM is only about 1 megabyte, and it has plenty room for more features via the application of DLLs.
+AyeScript is an interesting bitcode (yes, not bytecode) compiled-interpreted language designed as the first language for the BwittleVM, made for fun. It is not too akin to any specific language. This will be general overview on syntax, and features. There will also be documentation on what it compiles down to, being Bwittle Bwinary or just Bwinary, seen as ```.bwvm``` (BWittle Virtual Machine) files. Why is it called Bwittle? Because it is 'Little Bits', it has very small compiled output and the BWVM is only about 1 megabyte, and it has plenty room for more features via the application of DLLs. Note Bwassembly functions and variables are compiled down to integers.
 
 ## Compilation
 AyeScript is compiled using an order-of-operations line parser. The leftmost parentheses are executed first for every statement, including inside parenthetical statements. AyeScript compiles to a .acom file, containing all the .abin files generated from every function.
@@ -36,3 +36,78 @@ EndFunction
 ```
 
 This, as PrintLine takes in Register Default/0, outputs the string "100"
+
+# Bwinary and Bwessembly Instructions
+
+```
+GetInput = 0
+SetTempToVar = 1
+SetTempToString = 2
+PrintTemp = 3
+PrintLnTemp = 4
+SetVariableToTemp = 5
+RegisterToDefault = 6
+RegisterToA = 7
+RegisterToB = 8
+RegisterToC = 9
+RegisterToD = 10
+SetTempToInt = 11
+SetTempToFixedDeci = 12
+ExecuteFunction = 13
+IssueWhileReg = 14
+EndWhileOrIf = 15
+SetTempToBool = 16
+BreakWhile = 17
+IssueIfReg = 18
+IssueWhileVar = 19
+IssueIfVar = 20
+IssueIfNotVar = 21
+IssueIfNotReg = 22
+IssueWhileNotVar = 23
+IssueWhileNotReg = 24
+Add = 25
+Subtract = 26
+Multiply = 27
+Divide = 28
+SwapRegister = 29 
+VarRemove = 30 (also used to unload functions thatre lazyloaded)
+ExternalLibrary = 31
+```
+
+Equivalents in Bwessembly:
+
+```
+GetInput - GetInput (sets the current register to the result)
+SetTempToVar - $ [VarName] (sets the current register to the variable's info)
+SetTempToString - "[String inside here]" 
+PrintTemp - Print (prints the string held in the active register)
+PrintLnTemp - PrintLine (same as Print but prints a line)
+SetVariableToTemp - SetVar [VarName] (sets the labeled var to the current register's value)
+RegisterToDefault - 0= (all of these RegisterTos set the active register)
+RegisterToA - A= 
+RegisterToB - B=
+RegisterToC - C=
+RegisterToD - D=
+SetTempToInt - #"[integer in here]" (the active register will STILL BE A STRING, the difference is the string is encoded as an integer)
+SetTempToFixedDeci - #"[fixed decimal in here" (same syntax as ToInt, the compiler infers which your trying to do)
+ExecuteFunction - Invoke [FunctionName] | [FunctionName] 
+IssueWhileReg - While [Reg0 | RegA | RegB | RegC | RegD] (uses Register0 to hold the value that is considered to make the statemnet 'true')
+EndWhileOrIf  - EndWhile | EndIf 
+SetTempToBool - True | False
+BreakWhile - Break (also breaks if statements)
+IssueIfReg - If [Reg0 | RegA | RegB | RegC | RegD] (same as a loop but auto breaks at the end)
+IssueWhileVar - While [varname] (same as while but uses a variable)
+IssueIfVar - If [varname] (ditto-kinda)
+IssueIfNotVar - If-Not [varname]
+IssueIfNotReg - If-Not [Reg0 | RegA | RegB | RegC | RegD]
+IssueWhileNotVar - While-Not [varname]
+IssueWhileNotReg - While-Not [Reg0 | RegA | RegB | RegC | RegD]
+Add - Add (adds the value of Register A and Register B together if both can be converted to floats at runtime, if not, it concats them. outputs to selected register)
+Subtract - Subtract (ditto)
+Multiply - Multiply (ditto)
+Divide - Divide (ditto)
+SwapRegister - Reg0 | RegA | RegB | RegC | RegD (sets active register to the value of another register)
+VarRemove - DestroyVar [varname]
+			UnloadFunc [functionname]
+ExternalLibrary - tbd
+```
