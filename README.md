@@ -1,5 +1,33 @@
 # Bwassembly
-Bwassembly is an interesting bitcode (yes, not bytecode) low-level compiled-interpreted language designed as the first language for the BwittleVM, made for fun. It is not too akin to any specific language. This will be general overview on syntax, and features. There will also be documentation on what it compiles down to, being Bwittle Bwinary or just Bwinary, seen as ```.bwvm``` (BWittle Virtual Machine) files. Why is it called Bwittle? Because it is 'Little Bits', it has very small compiled output and the BWVM is only about 1 megabyte, and it has plenty room for more features via the application of DLLs. Note Bwassembly functions and variables are compiled down to integers. Later higher-level languages are planned to be made that compile into Bwassembly.
+Bwassembly is an interesting bitcode (yes, not bytecode) low-level compiled-interpreted language designed as the first language for the BwittleVM, made for fun. It is not too akin to any specific language. This will be general overview on syntax, and features. There will also be documentation on what it compiles down to, being Bwittle Bwinary or just Bwinary, seen as ```.bwvm``` (BWittle Virtual Machine) files. Why is it called Bwittle? Because it is 'Little Bits', it has very small compiled output and the BWVM is only about 1 megabyte, and it has plenty room for more features via the application of DLLs. Note Bwassembly functions and variables are compiled down to integers. Later higher-level languages are planned to be made that compile into Bwassembly. Later on it is planned to double the amount of Opcodes by swapping id length from 5 -> 6, this would allow more specificity (such as replacing SwapRegister with variants in regards to each register) which would actually, in a backwards-ish way, make code even SHORTER. To benchmark this we use this fibbonacci script:
+
+```
+Function Program
+	SetVar lastObj (0=)(#"0")
+	SetVar secObj (0=)(#"1")
+	SetVar issueance (0=)(False)
+	
+	While-Not RegB (0=)(True)
+	
+		Add (A=)($ lastObj) (B=)($ secObj) (D=)
+		
+		If issueance (0=)(True)
+			SetVar lastObj (0=)(RegD)
+			(C=)(False)
+		EndIf
+		If-Not issueance (0=)(True)
+			SetVar secObj (0=)(RegD)
+			(C=)(True)
+		EndIf
+		
+		PrintLine (0=)(RegD)
+		
+		SetVar issueance (0=)(RegC)
+		
+		GetInput (B=)
+	EndWhile
+EndFunction
+```
 
 ## Compilation
 Bwassembly is compiled using an order-of-operations line parser. The leftmost parentheses are executed first for every statement, including inside parenthetical statements. Bwassembly compiles to many ```.bwvm``` files corresponding to every function. These are lazily loaded and cached by the BwittleVM. To further optimize the compiled output, a 3-byte config is in the project's bin directory. This contains instructions for the VM to interpret your code. Without it, your code is uninterpretable. The format of this is as such:
