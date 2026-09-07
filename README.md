@@ -29,6 +29,14 @@ Function Program
 EndFunction
 ```
 
+Compiled fibbo, using 6-bit opcodes:
+
+```
+PROGRAM: 000110001011000000000000000000001010000000100011000101100000000000000001000101000000100001100100000000101000000110001100100001011000010000111000001000000010010000000010000001000101001100100011001000010101000000001100011001110110000010100000001001001010000000111100011001000010101010000001100011001110110000010100000010001001010000100111100011001110110000010000011001110101100010100000011001000000000001111
+3B CONFIG: 
+011111110001111011100111
+```
+
 ## Compilation
 Bwassembly is compiled using an order-of-operations line parser. The leftmost parentheses are executed first for every statement, including inside parenthetical statements. Bwassembly compiles to many ```.bwvm``` files corresponding to every function. These are lazily loaded and cached by the BwittleVM. To further optimize the compiled output, a 3-byte config is in the project's bin directory. This contains instructions for the VM to interpret your code. Without it, your code is uninterpretable. The format of this is as such:
 ```
