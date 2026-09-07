@@ -1,0 +1,25 @@
+// this is a heavily optimized program for FIBBO sequence that whips the registers into submission
+// CONFIG dictates only 1 bit for integers. why? well we only set each number to either 0 or 1
+Function Program
+	(F=)(#"0")
+	(G=)(#"1")
+	(E=)(False)
+	
+	While-Not RegB (0=)(True)
+	
+		Add (A=)(RegF) (B=)(RegG) (D=)
+		
+		If RegE (0=)(True)
+			(F=)(RegD)
+		EndIf
+		If-Not RegE
+			(G=)(RegD)
+		EndIf
+		
+		PrintLine (0=)(RegD)
+
+		Not (0=)(RegE) (E=)
+
+		GetInput (B=)
+	EndWhile
+EndFunction
