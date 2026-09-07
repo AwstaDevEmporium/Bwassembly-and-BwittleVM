@@ -1,0 +1,7 @@
+// This is highly bitgolfed to take only THREE bytes!
+Function Program
+	GetInput
+	Not
+	PrintLine
+	GetInput
+EndFunction
