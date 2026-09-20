@@ -341,3 +341,176 @@ EndFunction
 ```
 
 Compiles to: ```000110001011100000000000010100001000001100100001011000001001111``` w/ 3BConfig of ```011111110001111011100111```
+
+# Size
+
+This program, the entire compiled program binary, is only 227 Bytes (w/ unused functions excluded), or 180 Bytes with aggressive field optimization:
+```
+
+// sets reg0 to the pointer ID of this new dynamic class-equivalent object that is made at runtime
+// , rahter than compile time like by
+// classes and CompileTimeConstruct
+Function Vector3.CreateDynamic
+	SetVar TempX
+	SetVar TempY (0=)(RegA)
+	SetVar TempZ (0=)(RegB)
+
+	// get novel pointer a the top of the variable list/stack thing
+	(G=)(FrontierPointer)
+	
+	Add (A=)(RegG) (B=)(#"1") (F=)
+	SetValAtPoint (0=)(RegF) (A=)($ TempX)
+
+	Add (A=)(RegG) (B=)(#"2") (F=)
+	SetValAtPoint (0=)(RegF) (A=)($ TempY)
+	
+	Add (A=)(RegG) (B=)(#"3") (F=)
+	SetValAtPoint (0=)(RegF) (A=)($ TempZ)
+	
+	(0=)(RegG)
+EndFunction
+
+Class Vector3
+	SetVar <This>
+	SetVar <This>.x
+	SetVar <This>.y (0=)(RegA)
+	SetVar <This>.z (0=)(RegB)
+	
+	// takes input of a pointer to another Vec3 class's base <This> var in reg0
+	DynamicFunction <This>.Add
+		// store the vec3 pointer in register G
+		(G=)(Reg0)
+		
+		Add (A=)(RegG) (B=)(#"1") (F=)
+
+		GetValAtPoint (0=)(RegF) (A=)		
+		SetVar <This>.x ( Add (B=)($ <This>.x) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"2") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.y ( Add (B=)($ <This>.y) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"3") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.z ( Add (B=)($ <This>.z) (0=) )
+	EndDynamicFunction
+	
+	DynamicFunction <This>.Sub
+		// store the vec3 pointer in register G
+		(G=)(Reg0)
+		
+		Add (A=)(RegG) (B=)(#"1") (F=)
+
+		GetValAtPoint (0=)(RegF) (A=)		
+		SetVar <This>.x ( Sub (B=)($ <This>.x) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"2") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.y ( Sub (B=)($ <This>.y) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"3") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.z ( Sub (B=)($ <This>.z) (0=) )
+	EndDynamicFunction
+	
+	DynamicFunction <This>.Multiply
+		// store the vec3 pointer in register G
+		(G=)(Reg0)
+		
+		Add (A=)(RegG) (B=)(#"1") (F=)
+
+		GetValAtPoint (0=)(RegF) (A=)		
+		SetVar <This>.x ( Multiply (B=)($ <This>.x) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"2") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.y ( Multiply (B=)($ <This>.y) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"3") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.z ( Multiply (B=)($ <This>.z) (0=) )
+	EndDynamicFunction
+	
+	DynamicFunction <This>.Divide
+		// store the vec3 pointer in register G
+		(G=)(Reg0)
+		
+		Add (A=)(RegG) (B=)(#"1") (F=)
+
+		GetValAtPoint (0=)(RegF) (A=)		
+		SetVar <This>.x ( Divide (B=)($ <This>.x) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"2") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.y ( Divide (B=)($ <This>.y) (0=) )
+		
+		Add (A=)(RegG) (B=)(#"3") (F=)
+		
+		GetValAtPoint (0=)(RegF) (A=)
+		SetVar <This>.z ( Divide (B=)($ <This>.z) (0=) )
+	EndDynamicFunction
+	
+	// takes input of a pointer leading to a vector3 class-equiv, whether dynamically made or CTConstruct
+	// useful if you want to interface a runtime/dynamic class
+	// like how you with these CompileTimeConstructs, temporarily
+	DynamicFunction <This>.SetMeTo
+		(G=)(Reg0)
+		
+		Add (A=)(RegG) (B=)(#"1") (F=)
+
+		GetValAtPoint (0=)(RegF) (0=)		
+		SetVar <This>.x
+		
+		Add (A=)(RegG) (B=)(#"2") (F=)
+
+		GetValAtPoint (0=)(RegF) (0=)		
+		SetVar <This>.y
+		
+		Add (A=)(RegG) (B=)(#"3") (F=)
+
+		GetValAtPoint (0=)(RegF) (0=)		
+		SetVar <This>.z
+	EndDynamicFunction
+	
+	DynamicFunction <This>.SetItTo
+		(G=)(Reg0)
+		
+		Add (A=)(RegG) (B=)(#"1") (F=)
+
+		SetValAtPoint (0=)(RegF) (A=)($ <This>.x)
+		
+		Add (A=)(RegG) (B=)(#"2") (F=)
+
+		SetValAtPoint (0=)(RegF) (A=)($ <This>.y)
+		
+		Add (A=)(RegG) (B=)(#"3") (F=)
+
+		SetValAtPoint (0=)(RegF) (A=)($ <This>.z)
+	EndDynamicFunction
+EndClass
+
+Function Program
+	CompileTimeConstruct Vector3 Position (0=)(#"1") (A=)(#"1") (B=)(#"1")
+	CompileTimeConstruct Vector3 Position2 (0=)(#"1") (A=)(#"1") (B=)(#"1")
+		
+	SetVar DynamicVec3Pointer (Vector3.CreateDynamic (0=)(#"2") (A=)(#"2") (B=)(#"2"))
+	
+	Position.Add (0=)($ DynamicVec3Pointer)
+	
+	PrintLine (0=)("RESULTUMS")
+	
+	PrintLine (0=)($ Position.x)
+	PrintLine (0=)($ Position2.x)
+	
+	GetInput
+EndFunction
+
+#compile
+```
