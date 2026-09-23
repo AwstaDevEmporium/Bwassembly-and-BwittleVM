@@ -267,7 +267,9 @@ SetLocalVariableToTemp = 54;
 SetTempToLocalVariable = 55;
 DynamicVarSetToTemp = 56; // uses pointers
 DynamicVarGetToTemp = 57;
-GetNewPointer = 58;
+GetNewPointer = 58;A
+ReturnValue = 59;
+ReturnNothing = 60;
 ```
 
 Equivalents in Bwessembly:
@@ -314,6 +316,8 @@ RegEqualTo - Equal (ditto)
 GetNewPointer - FrontierPointer
 DynamicVarSetToTemp - SetValAtPoint (register 0 is the pointer number, and register A is the value)
 DynamicVarGetToTemp - GetValAtPoint (register 0 is the pointer number)
+ReturnValue - ReturnVal (register 0 is what is returned to the active register in the other function that called ts)
+ReturnNothinig - Return (only ends the functgion_)
 ```
 
 And things thatre purely compiletime:
@@ -344,170 +348,211 @@ Compiles to: ```000110001011100000000000010100001000001100100001011000001001111`
 
 # Size
 
-This program, the entire compiled program binary, is only 227 Bytes (w/ unused functions excluded), or 180 Bytes with aggressive field optimization:
+This program, the entire compiled program binary, is only 563 Bytes (INCLUDING UNUSED FUNCTIONS), without aggressive field optimization:
 ```
-
 // sets reg0 to the pointer ID of this new dynamic class-equivalent object that is made at runtime
 // , rahter than compile time like by
 // classes and CompileTimeConstruct
-Function Vector3.CreateDynamic
-	SetVar TempX
-	SetVar TempY (0=)(RegA)
-	SetVar TempZ (0=)(RegB)
+
+// make it so classes use the generic functions (less efish yes, but better for storage)
+
+Function Vector3.NewDynamic
+	(G=)(Reg0)
+	SetVar V3TempX (0=)(RegA)
+	SetVar V3TempY (0=)(RegB)
+	SetVar V3TempZ (0=)(RegC)
 
 	// get novel pointer a the top of the variable list/stack thing
-	(G=)(FrontierPointer)
+	
+	SetValAtPoint (0=)(RegG) (A=)(#"3")
 	
 	Add (A=)(RegG) (B=)(#"1") (F=)
-	SetValAtPoint (0=)(RegF) (A=)($ TempX)
+	SetValAtPoint (0=)(RegF) (A=)($ V3TempX)
 
 	Add (A=)(RegG) (B=)(#"2") (F=)
-	SetValAtPoint (0=)(RegF) (A=)($ TempY)
+	SetValAtPoint (0=)(RegF) (A=)($ V3TempY)
 	
 	Add (A=)(RegG) (B=)(#"3") (F=)
-	SetValAtPoint (0=)(RegF) (A=)($ TempZ)
+	SetValAtPoint (0=)(RegF) (A=)($ V3TempZ)
+
+	DestroyVarAtPoint (0=)(Pointer-> V3TempX)
+	DestroyVarAtPoint (0=)(Pointer-> V3TempY)
+	DestroyVarAtPoint (0=)(Pointer-> V3TempZ)
 	
-	(0=)(RegG)
+	ReturnVal (0=)(RegG)
 EndFunction
 
+// adds two vector3s off pointers, use 0= Target Vec3, A= second Vec3
+Function Vector3.Add
+	// store the vec3 pointer in register G
+	(G=)(Reg0)
+	(E=)(RegA)
+		
+	Add (A=)(RegG) (B=)(#"1") (F=)
+	Add (A=)(RegE) (B=)(#"1") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Add)
+		
+	Add (A=)(RegG) (B=)(#"2") (F=)
+	Add (A=)(RegE) (B=)(#"2") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Add)
+	
+	Add (A=)(RegG) (B=)(#"3") (F=)
+	Add (A=)(RegE) (B=)(#"3") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Add)
+EndFunction
+
+// adds two vector3s off pointers, use 0= Target Vec3, A= second Vec3
+Function Vector3.Sub
+	// store the vec3 pointer in register G
+	(G=)(Reg0)
+	(E=)(RegA)
+		
+	Sub (A=)(RegG) (B=)(#"1") (F=)
+	Sub (A=)(RegE) (B=)(#"1") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Sub)
+		
+	Sub (A=)(RegG) (B=)(#"2") (F=)
+	Sub (A=)(RegE) (B=)(#"2") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Sub)
+	
+	Add (A=)(RegG) (B=)(#"3") (F=)
+	Add (A=)(RegE) (B=)(#"3") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Sub)
+EndFunction
+
+Function Vector3.Multiply
+	// store the vec3 pointer in register G
+	(G=)(Reg0)
+	(E=)(RegA)
+		
+	Multiply (A=)(RegG) (B=)(#"1") (F=)
+	Multiply (A=)(RegE) (B=)(#"1") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Multiply)
+		
+	Multiply (A=)(RegG) (B=)(#"2") (F=)
+	Multiply (A=)(RegE) (B=)(#"2") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Multiply)
+	
+	Multiply (A=)(RegG) (B=)(#"3") (F=)
+	Multiply (A=)(RegE) (B=)(#"3") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Multiply)
+EndFunction
+
+Function Vector3.Divide
+	(G=)(Reg0)
+	(E=)(RegA)
+		
+	Divide (A=)(RegG) (B=)(#"1") (F=)
+	Divide (A=)(RegE) (B=)(#"1") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Divide)
+		
+	Divide (A=)(RegG) (B=)(#"2") (F=)
+	Divide (A=)(RegE) (B=)(#"2") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Divide)
+	
+	Divide (A=)(RegG) (B=)(#"3") (F=)
+	Divide (A=)(RegE) (B=)(#"3") (D=)
+	
+	GetValAtPoint (0=)(RegF) (A=)
+	GetValAtPoint (0=)(RegD) (B=)
+	SetValAtPoint (0=)(RegF) (A=)(Divide)
+EndFunction
+
+// standard objects have a header with the length of its fields excluding the header (vector3 = 3: header, x, y, and z)
+Function StdObject.CopyTo
+	// reg0 = first obj head pointer, regA = second obj header pointer duh
+	(G=)(Reg0)
+	(F=)(RegA)
+	
+	// e= length of object 0, assumed length of obj A
+	GetValAtPoint (0=)(RegG) (E=)
+	
+	(D=)(#"0")
+	(C=)(False)
+	
+	// reg D is current iteration, reg c is just a flag
+	While RegC (0=)(False)
+		GetValAtPoint ( Add (A=)(RegD) (B=)(RegG) (0=) ) (C=)
+		SetValAtPoint ( Add (A=)(RegD) (B=)(RegF) (0=) ) (A=)(RegC)
+		
+		Add (A=)(RegD) (B=)(#"1") (D=)
+		GreaterThan (A=)(RegD) (B=)(RegE) (C=)
+	EndWhile
+EndFunction
+
+Function StdObject.Destroy
+	// reg0 = first obj head pointer, regA = second obj header pointer duh
+	(G=)(Reg0)
+	
+	// e= length of object 0, assumed length of obj A
+	GetValAtPoint (0=)(RegG) (E=)
+	
+	(D=)(#"0")
+	(C=)(False)
+	
+	// reg D is current iteration, reg c is just a flag
+	While RegC (0=)(False)
+		DestroyVarAtPoint ( Add (A=)(RegD) (B=)(RegG) (0=) )
+		
+		Add (A=)(RegD) (B=)(#"1") (D=)
+		GreaterThan (A=)(RegD) (B=)(RegE) (C=)
+	EndWhile
+EndFunction
+
+// can be used to make compiletime layouts, metaprogramming.
 Class Vector3
-	SetVar <This>
-	SetVar <This>.x
+	(G=)(Reg0)
+	// set width of this object, after the header (this)
+	SetVar <This> (0=)(#"3")
+	SetVar <This>.x (0=)(RegG)
 	SetVar <This>.y (0=)(RegA)
 	SetVar <This>.z (0=)(RegB)
-	
-	// takes input of a pointer to another Vec3 class's base <This> var in reg0
-	DynamicFunction <This>.Add
-		// store the vec3 pointer in register G
-		(G=)(Reg0)
-		
-		Add (A=)(RegG) (B=)(#"1") (F=)
-
-		GetValAtPoint (0=)(RegF) (A=)		
-		SetVar <This>.x ( Add (B=)($ <This>.x) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"2") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.y ( Add (B=)($ <This>.y) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"3") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.z ( Add (B=)($ <This>.z) (0=) )
-	EndDynamicFunction
-	
-	DynamicFunction <This>.Sub
-		// store the vec3 pointer in register G
-		(G=)(Reg0)
-		
-		Add (A=)(RegG) (B=)(#"1") (F=)
-
-		GetValAtPoint (0=)(RegF) (A=)		
-		SetVar <This>.x ( Sub (B=)($ <This>.x) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"2") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.y ( Sub (B=)($ <This>.y) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"3") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.z ( Sub (B=)($ <This>.z) (0=) )
-	EndDynamicFunction
-	
-	DynamicFunction <This>.Multiply
-		// store the vec3 pointer in register G
-		(G=)(Reg0)
-		
-		Add (A=)(RegG) (B=)(#"1") (F=)
-
-		GetValAtPoint (0=)(RegF) (A=)		
-		SetVar <This>.x ( Multiply (B=)($ <This>.x) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"2") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.y ( Multiply (B=)($ <This>.y) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"3") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.z ( Multiply (B=)($ <This>.z) (0=) )
-	EndDynamicFunction
-	
-	DynamicFunction <This>.Divide
-		// store the vec3 pointer in register G
-		(G=)(Reg0)
-		
-		Add (A=)(RegG) (B=)(#"1") (F=)
-
-		GetValAtPoint (0=)(RegF) (A=)		
-		SetVar <This>.x ( Divide (B=)($ <This>.x) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"2") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.y ( Divide (B=)($ <This>.y) (0=) )
-		
-		Add (A=)(RegG) (B=)(#"3") (F=)
-		
-		GetValAtPoint (0=)(RegF) (A=)
-		SetVar <This>.z ( Divide (B=)($ <This>.z) (0=) )
-	EndDynamicFunction
-	
-	// takes input of a pointer leading to a vector3 class-equiv, whether dynamically made or CTConstruct
-	// useful if you want to interface a runtime/dynamic class
-	// like how you with these CompileTimeConstructs, temporarily
-	DynamicFunction <This>.SetMeTo
-		(G=)(Reg0)
-		
-		Add (A=)(RegG) (B=)(#"1") (F=)
-
-		GetValAtPoint (0=)(RegF) (0=)		
-		SetVar <This>.x
-		
-		Add (A=)(RegG) (B=)(#"2") (F=)
-
-		GetValAtPoint (0=)(RegF) (0=)		
-		SetVar <This>.y
-		
-		Add (A=)(RegG) (B=)(#"3") (F=)
-
-		GetValAtPoint (0=)(RegF) (0=)		
-		SetVar <This>.z
-	EndDynamicFunction
-	
-	DynamicFunction <This>.SetItTo
-		(G=)(Reg0)
-		
-		Add (A=)(RegG) (B=)(#"1") (F=)
-
-		SetValAtPoint (0=)(RegF) (A=)($ <This>.x)
-		
-		Add (A=)(RegG) (B=)(#"2") (F=)
-
-		SetValAtPoint (0=)(RegF) (A=)($ <This>.y)
-		
-		Add (A=)(RegG) (B=)(#"3") (F=)
-
-		SetValAtPoint (0=)(RegF) (A=)($ <This>.z)
-	EndDynamicFunction
 EndClass
 
 Function Program
-	CompileTimeConstruct Vector3 Position (0=)(#"1") (A=)(#"1") (B=)(#"1")
-	CompileTimeConstruct Vector3 Position2 (0=)(#"1") (A=)(#"1") (B=)(#"1")
+	SetVar x (0=)("t")
+	
+	(G=)("NIXON")
+	While RegG (0=)("NIXON")
+		SetVar DynamicVec3Pointer (Vector3.NewDynamic (0=)(FrontierPointer) (A=)(#"1") (B=)(#"1") (C=)(#"1") (0=))
+	
+		StdObject.Destroy (0=)($ DynamicVec3Pointer)
 		
-	SetVar DynamicVec3Pointer (Vector3.CreateDynamic (0=)(#"2") (A=)(#"2") (B=)(#"2"))
-	
-	Position.Add (0=)($ DynamicVec3Pointer)
-	
-	PrintLine (0=)("RESULTUMS")
-	
-	PrintLine (0=)($ Position.x)
-	PrintLine (0=)($ Position2.x)
+		PrintLine (0=)(FrontierPointer)
+	EndWhile
 	
 	GetInput
 EndFunction
