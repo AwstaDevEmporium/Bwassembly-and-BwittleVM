@@ -123,6 +123,9 @@ DynamicVarGetToTemp = 57;
 GetNewPointer = 58;A
 ReturnValue = 59;
 ReturnNothing = 60;
+ExplicitConcat = 61;
+GetStrLength = 62;
+SetCharInStr = 63;
 ```
 
 Equivalents in Bwessembly:
@@ -171,6 +174,9 @@ DynamicVarSetToTemp - SetValAtPoint (register 0 is the pointer number, and regis
 DynamicVarGetToTemp - GetValAtPoint (register 0 is the pointer number)
 ReturnValue - ReturnVal (register 0 is what is returned to the active register in the other function that called ts)
 ReturnNothinig - Return (only ends the functgion_)
+ExplicitConcat - Concat (takes in A and B to concat)
+GetStrLength - GetLength (takes in reg0 of a string and outputs length)
+SetCharInStr - SetChar (takes in reg0 the string, regA the position, and regB the char)
 ```
 
 And things thatre purely compiletime:
