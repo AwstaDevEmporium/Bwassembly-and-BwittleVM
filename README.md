@@ -13,7 +13,7 @@ Next 5 bits represent - FunctionID bit width
 Later this might be incorporated into the PROGRAM file, so that it benefits from the bitpacking.
 
 ## CompileTime Assets (files)
-Using the ``#AddCTAsset`` and specifying a path and then a name, the file will be added to a folder in the compiled program with a number as its name. You can get the number from within the code by using ``CTAsset AssetName``, which is resolved at compiletime. These can be used interchangably with paths in official DLLs and in the VM.
+Using the ``#AddCTAsset`` and specifying a path and then a name, the file will be added to a folder in the compiled program with a number as its name. You can get the number from within the code by using ``CTAsset AssetName``, which is resolved at compiletime. These can be used interchangably with paths in official DLLs and in the VM. Note most recently the format has shifted to Unified BWVM, still just ``.bwvm`` however now you can compile an entire program into only one file!
 
 ## Runtime dynamic storage v. Compiletime static storage
 When your making shtuff, be careful. ``SetVar``, ``$``, ``If [varname]``, ``While [varname]``, and etc all use variable names thatre resolved to numbers at compiletime. Meaning you cannot dynamically access these. The solution is pointers, as pointers allow you to manage runtime variable storage directly w/o compiler abstraction. Now, these are primarily used in classes/dynamically-generated classes as class members are determined by offset. Classes also are purely compile time and do not exist in the VM, and can only be used in CompileTimeConstruct creation. However for simplicity dynamically created/ runtime/ pointer-built class-likes thatre compatible with their compiletime class equivalents are also called classes. class set example:
@@ -328,27 +328,12 @@ Function [functionname]/ EndFunction - determines bounds of a function
 DynamicFunction [functionname]/ EndDynamicFunction - determines bounds of a function that is a compiled like an instruction, meaning, it cannot be accessed before its defined. Used primary for functions in compiletime Classes.
 #append [filename] - appends the bwasm code in this file to the compiler
 #compile - MAJOR KEYWORD, indicates fro the compiler to finish compiling
-Pointer [varname] - on compiletime itll replace this with the pointer value of the varname
+Pointer-> [varname] - on compiletime itll replace this with the pointer value of the varname
 ```
-
-# Examples:
-
-```
-Function Program
-	PrintLine (0=)(#"-10")
-	While-Not RegA (0=)(True)
-	
-	EndWhile
-EndFunction
-
-#compile
-```
-
-Compiles to: ```000110001011100000000000010100001000001100100001011000001001111``` w/ 3BConfig of ```011111110001111011100111```
 
 # Size
 
-This program, the entire compiled program binary, is only 563 Bytes (INCLUDING UNUSED FUNCTIONS), without aggressive field optimization:
+This program, the entire compiled program binary, is only 663 Bytes (INCLUDING UNUSED FUNCTIONS), without aggressive field optimization:
 ```
 // sets reg0 to the pointer ID of this new dynamic class-equivalent object that is made at runtime
 // , rahter than compile time like by
@@ -380,6 +365,15 @@ Function Vector3.NewDynamic
 	DestroyVarAtPoint (0=)(Pointer-> V3TempZ)
 	
 	ReturnVal (0=)(RegG)
+EndFunction
+
+// reg 0 is the vector3 in question
+Function Vector3.GetX
+	(G=)(Reg0)
+	
+	Add (A=)(RegG) (B=)(#"1") (F=)
+	GetValAtPoint (0=)(RegF) (E=)
+	ReturnVal (0=)(RegE)
 EndFunction
 
 // adds two vector3s off pointers, use 0= Target Vec3, A= second Vec3
@@ -543,16 +537,21 @@ Class Vector3
 EndClass
 
 Function Program
-	SetVar x (0=)("t")
 	
-	(G=)("NIXON")
-	While RegG (0=)("NIXON")
-		SetVar DynamicVec3Pointer (Vector3.NewDynamic (0=)(FrontierPointer) (A=)(#"1") (B=)(#"1") (C=)(#"1") (0=))
+	SetVar DynamicVec3Pointer (Vector3.NewDynamic (0=)(FrontierPointer) (A=)(#"1") (B=)(#"1") (C=)(#"1") (0=))
+	SetVar SecDVec3P (Vector3.NewDynamic (0=)(FrontierPointer) (A=)(#"1") (B=)(#"1") (C=)(#"1") (0=))
 	
-		StdObject.Destroy (0=)($ DynamicVec3Pointer)
-		
-		PrintLine (0=)(FrontierPointer)
-	EndWhile
+	PrintLine (Add (A=)("First Frontier : ") (B=)(FrontierPointer) (0=))
+	PrintLine (Add (A=)("First Vec3 Pointer : ") (B=)($ DynamicVec3Pointer) (0=))
+	PrintLine (Add (A=)("Second Vec3 Pointer : ") (B=)($ SecDVec3P) (0=))
+	
+	Vector3.Add (0=)($ DynamicVec3Pointer) (A=)($ SecDVec3P)
+	PrintLine (Vector3.GetX (0=)($ DynamicVec3Pointer))
+	
+	StdObject.Destroy (0=)($ DynamicVec3Pointer)
+	StdObject.Destroy (0=)($ SecDVec3P)
+	
+	PrintLine (Add (A=)("Deletion Frontier : ") (B=)(FrontierPointer) (0=))
 	
 	GetInput
 EndFunction
